@@ -15,6 +15,7 @@ db.once('open', function () {
   console.log('MongoDB connected!')
 })
 
+const oneDay = 1000 * 60 * 60 * 24
 
 const store = new MongoStore({
     mongooseConnection: db,
@@ -31,7 +32,7 @@ const sessionMiddleware = session({
     name: 'chatterbot',
     secure: true, 
     httpOnly: true,
-    maxAge: process.env.COOKIE_EXPIRES_IN
+    maxAge: oneDay
   },
   store: store
 })
