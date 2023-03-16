@@ -30,15 +30,11 @@ const sessionMiddleware = session({
   cookie: { 
     name: 'chatterbot',
     secure: true, 
+    httpOnly: true,
     maxAge: process.env.COOKIE_EXPIRES_IN
   },
   store: store
 })
-
-if(process.env.NODE_ENV === "production"){
-  // sessionMiddleware.cookie.secure = true;
-  sessionMiddleware.cookie.httpOnly = true;
-}
 
 module.exports = {
   sessionMiddleware,
