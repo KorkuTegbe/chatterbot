@@ -4,7 +4,7 @@
   "description": "a chatbot to help customers place orders at a restaurant",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js.js",
+    "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "repository": {

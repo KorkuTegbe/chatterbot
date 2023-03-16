@@ -29,14 +29,14 @@ const sessionMiddleware = session({
   saveUninitialized: true,
   cookie: { 
     name: 'chatterbot',
-    secure: false, 
+    secure: true, 
     maxAge: process.env.COOKIE_EXPIRES_IN
   },
   store: store
 })
 
 if(process.env.NODE_ENV === "production"){
-  sessionMiddleware.cookie.secure = true;
+  // sessionMiddleware.cookie.secure = true;
   sessionMiddleware.cookie.httpOnly = true;
 }
 
