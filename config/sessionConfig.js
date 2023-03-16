@@ -1,9 +1,11 @@
 const session = require('express-session')
-const MongoStore = require('connect-mongo')  //(session)
+const MongoStore = require('connect-mongo') 
 const mongoose = require('mongoose')
+require('dotenv').config()
 
 // Set up a MongoDB connection
-mongoose.connect('mongodb://localhost:27017/chatSessions', {
+mongoose.connect(
+  process.env.REMOTE_DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -13,24 +15,30 @@ db.once('open', function () {
   console.log('MongoDB connected!')
 })
 
-const oneDay = 1000 * 60 * 60 * 24
 
 const store = new MongoStore({
     mongooseConnection: db,
-    mongoUrl: 'mongodb://localhost:27017/chatSessions',
+    mongoUrl: process.env.REMOTE_DB,
     collection: 'sessions',
-
 })
 
 const sessionMiddleware = session({
-  secret: 'secret-key',
+  name: 'chatterbot',
+  secret: process.env.SESSION_SECRET, 
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false, maxAge: oneDay },
+  cookie: { 
+    name: 'chatterbot',
+    secure: false, 
+    maxAge: process.env.COOKIE_EXPIRES_IN
+  },
   store: store
 })
 
-// sessionStore
+if(process.env.NODE_ENV === "production"){
+  sessionMiddleware.cookie.secure = true;
+  sessionMiddleware.cookie.httpOnly = true;
+}
 
 module.exports = {
   sessionMiddleware,

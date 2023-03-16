@@ -1,3 +1,4 @@
 node_modules
 sessionStore.js
 main2.js
+.env

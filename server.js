@@ -6,7 +6,8 @@ const io = require('socket.io')(server,  {cors: { origin: '*' }})
 const{ sessionMiddleware }= require('./config/sessionConfig')
 const formatMessage = require('./utils/messages')
 const functions = require('./utils/functions')
-const { orderMenu } = require('./utils/menus')
+// const { orderMenu } = require('./utils/menus')
+require('dotenv').config()
 
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -96,9 +97,9 @@ io.on('connection', socket => {
     })
 })
 
+const PORT = process.env.PORT
 
-
-server.listen(3400, () => {
+server.listen(PORT, () => {
     console.log('server is running. nobody kaa ni do')
 })
 
