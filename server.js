@@ -6,18 +6,12 @@ const io = require('socket.io')(server,  {cors: { origin: '*' }})
 const{ sessionMiddleware }= require('./config/sessionConfig')
 const formatMessage = require('./utils/messages')
 const functions = require('./utils/functions')
-// const { orderMenu } = require('./utils/menus')
 require('dotenv').config()
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-// app.use(sessionMiddleware);
 
 io.engine.use(sessionMiddleware)
-
-// io.use((socket, next) =>
-//     sessionMiddleware(socket.request, socket.request.res, next)
-// );
 
 //to save the flow and remember previous message
 const levels = {};
@@ -27,8 +21,6 @@ io.on('connection', socket => {
     // get session
     const session = socket.request.session
     const sessionId = session.id
-    // functions.saveSessionId(sessionId)
-    // connect users with same session id
     socket.join(sessionId)
 
     // chatter bot sends a welcome message
@@ -82,7 +74,7 @@ io.on('connection', socket => {
                         number !== 5
                     ) {
                         botMessage = await formatMessage(
-                            config.botName,
+                            botName,
                             "Invalid Input. Enter 1 or 2 or 3 or 4 or 5"
                         );
                         io.to(sessionId).emit("bot message", botMessage);
@@ -97,9 +89,9 @@ io.on('connection', socket => {
     })
 })
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT ?? 3000
 
 server.listen(PORT, () => {
-    console.log('server is running. nobody kaa ni do')
+    console.log(`server is running on port ${PORT}`)
 })
 

@@ -29,7 +29,6 @@ form.addEventListener('submit', e => {
 
     // emit message to server
     socket.emit('user-message', msg)
-    // socket.emit('private-message', msg)
 
     // clear input
     e.target.elements.msg.value = ''
@@ -39,14 +38,17 @@ form.addEventListener('submit', e => {
 
 // function to output message from server
 const outputMessage = (sender, message) => {
-    const div = document.createElement('div')
-    if(sender === 'Chatterbox') { div.classList.add('bot-message') }
-    else{ div.classList.add('user-message')}
     const messageSection = document.createElement('div')
     messageSection.classList.add('message-section')
-    // div.appendChild(messageSection)
-    messageSection.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
+    const div = document.createElement('div')
+    if(sender == 'chatterbox') { 
+        div.classList.add('bot-message') 
+        console.log('bot added to class')
+    }else{ 
+        div.classList.add('bot-message')
+    }    
+    div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
     <p class="text">${message.text}</p>`
-    div.appendChild(messageSection)
-    chatMessages.appendChild(div)
+    messageSection.appendChild(div)
+    chatMessages.appendChild(messageSection)
 }

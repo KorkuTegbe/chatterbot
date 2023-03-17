@@ -61,12 +61,13 @@ exports.checkOutOrder = async (io, sessionId) => {
     }
 
     if (!sessionOrder.currentOrder || sessionOrder.currentOrder.length < 1) {
-        botMessage = formatMessage(botName, 'You have not ordered anything yet');
+        botMessage = formatMessage(botName, 'You have any current order');
         io.to(sessionId).emit('bot-message', botMessage)
     } else {
+        const placedOrder = Array.isArray(sessionOrder.placedOrder) ? sessionOrder.placedOrder : [];
         sessionOrder.placedOrder = [ 
             ...sessionOrder.currentOrder, 
-            ...sessionOrder.placedOrder,
+            ...placedOrder,
         ];
         sessionOrder.currentOrder = [];
         await store.clientP
@@ -86,6 +87,7 @@ exports.checkOutOrder = async (io, sessionId) => {
 
     return botMessage;
 }
+
 
 exports.sendOrderHistory =async (io, sessionId) => {
     const sessionOrder = await store.clientP
@@ -177,68 +179,39 @@ exports.cancelOrder = async (io, sessionId) => {
 }
 
 exports.saveOrder = async (io, sessionId, number) => {
+    let botMessage = '';
+
     const sessionOrder = await store.clientP
         .then(client => client.db()
         .collection(store.options.collection)
         .findOne({ _id: sessionId })
-    )|| { currentOrder: [] }; ;
-    let botMessage = ''
+    ) || { currentOrder: [] }; // set a default value for sessionOrder
 
-    if (sessionOrder && sessionOrder.currentOrder) {
-        // sessionOrder.currentOrder.push(foodMenu[0]);
-        if (number === 1) {
-            sessionOrder.currentOrder.push(foodMenu[0]);
-        }else if (!sessionOrder) {
-            sessionOrder = { currentOrder: [] };
-            sessionOrder.currentOrder.push(foodMenu[0]);
-        } else if (!sessionOrder.currentOrder) {
-            sessionOrder.currentOrder = [];
-            sessionOrder.currentOrder.push(foodMenu[0]);
-        }
-        if (number === 2) {
-            sessionOrder.currentOrder.push(foodMenu[1]);
-        }else if (!sessionOrder) {
-            sessionOrder = { currentOrder: [] };
-            sessionOrder.currentOrder.push(foodMenu[1]);
-        } else if (!sessionOrder.currentOrder) {
-            sessionOrder.currentOrder = [];
-            sessionOrder.currentOrder.push(foodMenu[1]);
-        }
-        if (number === 3) {
-            sessionOrder.currentOrder.push(foodMenu[2]);
-        }else if (!sessionOrder) {
-            sessionOrder = { currentOrder: [] };
-            sessionOrder.currentOrder.push(foodMenu[2]);
-        } else if (!sessionOrder.currentOrder) {
-            sessionOrder.currentOrder = [];
-            sessionOrder.currentOrder.push(foodMenu[2]);
-        }
-        if (number === 4) {
-            sessionOrder.currentOrder.push(foodMenu[3]);
-        }else if (!sessionOrder) {
-            sessionOrder = { currentOrder: [] };
-            sessionOrder.currentOrder.push(foodMenu[3]);
-        } else if (!sessionOrder.currentOrder) {
-            sessionOrder.currentOrder = [3];
-            sessionOrder.currentOrder.push(foodMenu[0]);
-        }
-        await store.clientP
-            .then(client => client.db()
-            .collection(store.options.collection)
-            .updateOne({ _id: sessionId }, 
-                { $set: sessionOrder }, 
-                { upsert: true }
-            )
-        );
-    
-        botMessage = formatMessage(
-            botName, formatArray("Order Added", sessionOrder.currentOrder)
-        );
-    
-        io.to(sessionId).emit("bot-message", botMessage);
+    if (!sessionOrder) {
+        sessionOrder = { currentOrder: [] };
     }
-    
-    io.to(sessionId).emit("bot-message", formatMessage(botName, formatArray(botMessage, orderMenu)))
-	return botMessage;
+      
+    if (!sessionOrder.currentOrder) {
+        sessionOrder.currentOrder = [];
+    }
+      
+    sessionOrder.currentOrder.push(foodMenu[number - 1]);
 
+    await store.clientP
+        .then(client => client.db()
+        .collection(store.options.collection)
+        .updateOne({ _id: sessionId }, 
+            { $set: sessionOrder }, 
+            { upsert: true }
+        )
+    );
+
+    botMessage = formatMessage(
+        botName, formatArray("Order Added", sessionOrder.currentOrder)
+    );
+
+    io.to(sessionId).emit("bot-message", botMessage);
+    io.to(sessionId).emit("bot-message", formatMessage(botName, formatArray('mainMenu',orderMenu)));
+
+    return botMessage;
 }
